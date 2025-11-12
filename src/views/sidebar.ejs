@@ -1,34 +1,239 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
+<!-- sidebar.ejs -->
 <style>
+  /* Sidebar Styles */
   .sidebar {
-    height: 100vh;
+    height: auto;
     position: sticky;
-    top: 0;
+    top: 72px;
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(10px);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.1);
+    border-right: 1px solid rgba(255, 255, 255, 0.3);
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0 !important;
   }
-  .sidebar a:hover {
-    background-color: #495057;
+
+  .sidebar .position-sticky {
+    padding: 24px 0;
+  }
+
+  /* Sidebar Header */
+  .sidebar-header {
+    padding: 0 24px 24px;
+    margin-bottom: 16px;
+    border-bottom: 2px solid rgba(102, 126, 234, 0.1);
+  }
+
+  .sidebar-header h5 {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #a0aec0;
+    margin: 0;
+  }
+
+  /* Sidebar Links */
+  .sidebar a {
+    color: #4a5568;
+    display: flex;
+    align-items: center;
+    padding: 14px 24px;
     text-decoration: none;
+    margin: 4px 12px;
+    border-radius: 12px;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .sidebar a::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    transform: scaleY(0);
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar a i {
+    margin-right: 12px;
+    font-size: 1.1rem;
+    width: 24px;
+    text-align: center;
+    transition: all 0.3s ease;
+  }
+
+  .sidebar a span {
+    flex: 1;
+  }
+
+  .sidebar a:hover {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white !important;
+    transform: translateX(4px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  }
+
+  .sidebar a:hover::before {
+    transform: scaleY(1);
+  }
+
+  .sidebar a:hover i {
+    transform: scale(1.1);
+  }
+
+  .sidebar a.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white !important;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  }
+
+  .sidebar a.active::before {
+    transform: scaleY(1);
+  }
+
+  /* Sidebar Divider */
+  .sidebar-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.2), transparent);
+    margin: 16px 24px;
+  }
+
+  .sidebar-section-title {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #a0aec0;
+    padding: 12px 24px 8px;
+    margin-top: 8px;
+  }
+
+  /* Sidebar scrollbar */
+  .sidebar::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .sidebar::-webkit-scrollbar-track {
+    background: rgba(102, 126, 234, 0.05);
+  }
+
+  .sidebar::-webkit-scrollbar-thumb {
+    background: rgba(102, 126, 234, 0.3);
+    border-radius: 10px;
+  }
+
+  .sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(102, 126, 234, 0.5);
+  }
+
+  /* Icon colors for different menu items */
+  .sidebar a[href="/"] i {
+    color: #667eea;
+  }
+
+  .sidebar a[href="/products"] i {
+    color: #10b981;
+  }
+
+  .sidebar a[href*="orders"] i {
+    color: #f59e0b;
+  }
+
+  .sidebar a[href*="users"] i {
+    color: #8b5cf6;
+  }
+
+  .sidebar a[href*="settings"] i {
+    color: #6b7280;
+  }
+
+  .sidebar a:hover i,
+  .sidebar a.active i {
+    color: white;
+  }
+
+  /* Mobile Responsive */
+  @media (max-width: 767px) {
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -100%;
+      height: 100vh;
+      width: 280px;
+      z-index: 1050;
+      transition: left 0.3s ease;
+      box-shadow: 8px 0 32px rgba(0, 0, 0, 0.2);
+    }
+
+    .sidebar.show {
+      left: 0;
+    }
   }
 </style>
-<body>
-    <!-- Sidebar -->
-<nav class="col-md-2 d-none d-md-block sidebar bg-dark">
+
+<!-- Sidebar Navigation -->
+<nav class="col-md-3 col-lg-2 d-md-block sidebar bg-dark" id="sidebar">
   <div class="position-sticky pt-3">
-    <a href="/" class="text-white d-block py-2 px-3">Dashboard</a>
-    <a href="/products" class="text-white d-block py-2 px-3">Items</a>
-    <a href="#" class="text-white d-block py-2 px-3">Orders</a>
-    <a href="#" class="text-white d-block py-2 px-3">Users</a>
-    <a href="#" class="text-white d-block py-2 px-3">Settings</a>
+    
+    <!-- Sidebar Header -->
+    <div class="sidebar-header">
+      <h5>Navigation</h5>
+    </div>
+
+    <!-- Main Menu -->
+    <a href="/" class="active">
+      <i class="fas fa-chart-line"></i>
+      <span>Dashboard</span>
+    </a>
+    
+    <a href="/products">
+      <i class="fas fa-box"></i>
+      <span>Items</span>
+    </a>
+    
+    <a href="#">
+      <i class="fas fa-shopping-cart"></i>
+      <span>Orders</span>
+    </a>
+    
+    <a href="#">
+      <i class="fas fa-users"></i>
+      <span>Users</span>
+    </a>
+
+    <!-- Divider -->
+    <div class="sidebar-divider"></div>
+
+    <!-- Section Title -->
+    <div class="sidebar-section-title">System</div>
+    
+    <a href="#">
+      <i class="fas fa-cog"></i>
+      <span>Settings</span>
+    </a>
+
   </div>
 </nav>
 
-
-
-</body>
-</html>
+<script>
+  // Auto-highlight active menu item based on current URL
+  document.addEventListener('DOMContentLoaded', function() {
+    const currentPath = window.location.pathname;
+    const links = document.querySelectorAll('.sidebar a');
+    
+    links.forEach(link => {
+      link.classList.remove('active');
+      if (link.getAttribute('href') === currentPath) {
+        link.classList.add('active');
+      }
+    });
+  });
+</script>

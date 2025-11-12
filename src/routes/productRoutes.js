@@ -21,6 +21,6 @@ router.post('/add-product', verifyToken, upload.single('image'), controller.addp
 router.get('/edit/:id', verifyToken, controller.getEditForm);
 router.post('/update/:id', verifyToken, upload.single('image'), controller.updateProduct);
 router.get('/delete/:id', verifyToken, controller.deleteProduct);
-router.get('/profile/:id',verifyToken,upload.single('image'),controller.profile)
+router.get('/profile',verifyToken,upload.single('image'),controller.profile)
 
 module.exports = router;

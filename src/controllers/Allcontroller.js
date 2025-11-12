@@ -173,12 +173,6 @@ module.exports.getProducts = async (req, res) => {
 
 module.exports.profile = async (req,res) =>{
   try {
-     const adminId = req.params.id; 
-    const user = await Admin.findById(adminId);
-
-    if (!user) {
-      return res.status(404).send("User not found");
-    }
     const alluser = await Admin.find()
     res.render('profile',{alluser})
   } catch (error) {
