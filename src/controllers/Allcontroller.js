@@ -1,7 +1,11 @@
 const Product = require('../models/Product');
-const admin = require('../models/Admin') 
+const Admin = require('../models/Admin');
 const path = require('path');
 const fs = require('fs');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
+const secret = "MY_SECRET_KEY"; // .env me store karna better hai
 
 // Home Page
 module.exports.getHome = async (req, res) => {
@@ -12,66 +16,97 @@ module.exports.getHome = async (req, res) => {
   }
 };
 
-
-// login page 
-
-module.exports.login = async (req,res) => {
+// Register Page
+module.exports.register = async (req, res) => {
   try {
-    
-    res.render('login')
-
+    res.render('register');
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: "Internal server error!!" });
   }
-}
+};
 
-// login data controller
-module.exports.logindata = async (req, res) => {
+// Register User
+module.exports.registeruser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const user = await admin.findOne({ email: email });
+    const existing = await Admin.findOne({ email });
+    if (existing) {
+      return res.render('register', { error: 'Admin already exists! Please Login' });
+    }
 
-    console.log("Login attempt:", req.body);
-    console.log("User found:", user);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    
+    await Admin.create({ email, password: hashedPassword });
 
-    if (!user) {
+    res.redirect('/login');
+  } catch (err) {
+    console.log(err);
+    res.status(500).send('Error registering admin');
+  }
+};
+
+// Login Page
+module.exports.login = async (req, res) => {
+  try {
+    res.render('login', { error: null });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send('Internal server error');
+  }
+};
+
+// Login Data (Generate JWT)
+module.exports.logindata = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const admin = await Admin.findOne({ email });
+
+    if (!admin) {
       return res.render('login', { error: 'Email not found!' });
     }
-    if (user.password !== password) {
+
+    const isMatch = await bcrypt.compare(password, admin.password);
+    if (!isMatch) {
       return res.render('login', { error: 'Incorrect password!' });
     }
 
-    console.log('Login success:', user.email);
-    return res.redirect('/Dashboard');                  
+    // JWT Token Generate
+    const token = jwt.sign({ id: admin._id, email: admin.email }, secret);
 
+    // Cookie me token save
+    res.cookie('token', token, { httpOnly: true, secure: false });
+    return res.redirect('/');
   } catch (err) {
     console.log('Login error:', err);
     res.status(500).send('Internal server error');
   }
 };
 
+// Logout
+module.exports.logout = async (req, res) => {
+  res.clearCookie('token');
+  res.redirect('/login');
+};
 
 // Add Product
 module.exports.addproduct = async (req, res) => {
   try {
+
     const data = req.body;
-    console.log(req.file);
 
     if (req.file) {
       data.image = '/uploads/' + req.file.filename;
     } else {
-      console.log("Image is not uploaded!!");
+      return res.send("Please upload an image!");
     }
 
-    await Product.create(data); 
-    res.redirect('/products');
+    await Product.create(data);
+
+    return res.redirect('/products');
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: "Internal server error!!" });
+    console.log("Error adding product:", error);
+    res.status(500).json({ message: "Internal server error!" });
   }
 };
 
@@ -87,16 +122,14 @@ module.exports.getEditForm = async (req, res) => {
   }
 };
 
-
+// Update Product
 module.exports.updateProduct = async (req, res) => {
   try {
     const productId = req.params.id;
     const data = req.body;
 
-    console.log(req.file)
     if (req.file) {
-      const oldProduct = await Product.findById(productId , path.filename);
-
+      const oldProduct = await Product.findById(productId);
       if (oldProduct && oldProduct.image) {
         const oldImagePath = path.join(__dirname, '../uploads', path.basename(oldProduct.image));
         if (fs.existsSync(oldImagePath)) {
@@ -105,6 +138,7 @@ module.exports.updateProduct = async (req, res) => {
       }
       data.image = '/uploads/' + req.file.filename;
     }
+
     await Product.findByIdAndUpdate(productId, data, { new: true });
     res.redirect('/products');
   } catch (err) {
@@ -123,13 +157,31 @@ module.exports.deleteProduct = async (req, res) => {
   }
 };
 
-// Get All Products
+// Get All Products (Protected)
 module.exports.getProducts = async (req, res) => {
   try {
     const products = await Product.find();
-    res.render('products', { products }); 
+    res.render('products', { products });
   } catch (error) {
     console.log(error);
-    res.status(500).send("Internal server error!");
+    res.status(500).send('Internal server error!');
   }
 };
+
+
+// profile page
+
+module.exports.profile = async (req,res) =>{
+  try {
+     const adminId = req.params.id; 
+    const user = await Admin.findById(adminId);
+
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+    const alluser = await Admin.find()
+    res.render('profile',{alluser})
+  } catch (error) {
+    console.log(error)
+  }
+}
