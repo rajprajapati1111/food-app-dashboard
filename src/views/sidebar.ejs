@@ -1,6 +1,11 @@
-<!-- sidebar.ejs -->
-<style>
-  /* Sidebar Styles */
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+     /* Sidebar Styles */
   .sidebar {
     height: auto;
     position: sticky;
@@ -177,8 +182,11 @@
       left: 0;
     }
   }
-</style>
 
+  </style>
+</head>
+<body>
+    
 <!-- Sidebar Navigation -->
 <nav class="col-md-3 col-lg-2 d-md-block sidebar bg-dark" id="sidebar">
   <div class="position-sticky pt-3">
@@ -194,14 +202,14 @@
       <span>Dashboard</span>
     </a>
     
-    <a href="/products">
+    <a href="">
       <i class="fas fa-box"></i>
-      <span>Items</span>
+      <span>orders</span>
     </a>
     
-    <a href="#">
+    <a href="/products">
       <i class="fas fa-shopping-cart"></i>
-      <span>Orders</span>
+      <span>Items</span>
     </a>
     
     <a href="#">
@@ -222,18 +230,6 @@
 
   </div>
 </nav>
-
-<script>
-  // Auto-highlight active menu item based on current URL
-  document.addEventListener('DOMContentLoaded', function() {
-    const currentPath = window.location.pathname;
-    const links = document.querySelectorAll('.sidebar a');
-    
-    links.forEach(link => {
-      link.classList.remove('active');
-      if (link.getAttribute('href') === currentPath) {
-        link.classList.add('active');
-      }
-    });
-  });
-</script>
+  <script src="/public/js/sidebar.js"></script>
+</body>
+</html>

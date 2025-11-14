@@ -10,7 +10,9 @@ const secret = "MY_SECRET_KEY"; // .env me store karna better hai
 // Home Page
 module.exports.getHome = async (req, res) => {
   try {
-    res.render('home');
+    const totalProducts = await Product.countDocuments()
+    res.render('home',{totalProducts});
+    console.log(totalProducts)
   } catch (error) {
     console.log(error);
   }
@@ -162,6 +164,7 @@ module.exports.getProducts = async (req, res) => {
   try {
     const products = await Product.find();
     res.render('products', { products });
+    // res.json({products})
   } catch (error) {
     console.log(error);
     res.status(500).send('Internal server error!');
@@ -179,3 +182,5 @@ module.exports.profile = async (req,res) =>{
     console.log(error)
   }
 }
+
+
